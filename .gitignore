@@ -1,0 +1,4 @@
+brwo-venv
+.vscode
+ServiceAccountKey.json
+__pycache__
