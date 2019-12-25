@@ -1,7 +1,9 @@
-from flask import Flask, jsonify
+from flask import Flask, jsonify, request
 import firebase_admin
-import google.cloud
 from firebase_admin import credentials, firestore
+import google.cloud
+import requests
+
 
 # activate venv - brwo-venv\Scripts\activate
 
@@ -34,6 +36,21 @@ def get_all_items():
         print(u'Missing data')
 
     return jsonify({'items': items})
+
+
+@app.route('/api/v1.0/geocode', methods=['GET'])
+def geocode():
+    lat = request.args.get('lat')
+    lon = request.args.get('lon')
+
+    url = 'https://geocoding.geo.census.gov/geocoder/geographies/coordinates?benchmark=Public_AR_Current&vintage=Current_Current&format=json&layers=2&y={}&x={}'.format(
+        lat, lon)
+
+    r = requests.get(url)
+    data = r.json()
+
+    zip_code = data['result']['geographies']['2010 Census ZIP Code Tabulation Areas'][0]['GEOID']
+    return zip_code
 
 
 if __name__ == '__main__':
