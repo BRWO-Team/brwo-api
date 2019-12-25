@@ -1,5 +1,4 @@
 runtime: python37
-env: flex
 
 env_variables:
   GAE_MEMORY_MB: 1024
