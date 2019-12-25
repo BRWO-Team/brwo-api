@@ -1,10 +1,5 @@
 runtime: python37
 env: flex
 
-manual_scaling:
-  instances: 1
-
-resources:
-  cpu: 2
-  memory_gb: 8
-  disk_size_gb: 10
+env_variables:
+  GAE_MEMORY_MB: 1024
