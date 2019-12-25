@@ -54,7 +54,8 @@ def geocode():
 
 
 if __name__ == '__main__':
-    #test
-    app.run(debug=True)
-    #production
+    # test
+    #app.run(debug=True)
+
+    # production
     app.run(debug=False, port=8080)
