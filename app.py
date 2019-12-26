@@ -3,6 +3,7 @@ import firebase_admin
 from firebase_admin import credentials, firestore
 import google.cloud
 import requests
+from geopy import distance
 
 
 # activate venv - brwo-venv\Scripts\activate
@@ -27,11 +28,29 @@ def get_count_items():
     return str(len(list(store.collection('items').get())))
 
 
-@app.route('/api/v1.0/all/items', methods=['GET'])
-def get_all_items():
-    items = []
+# @app.route('/api/v1.0/all/items', methods=['GET'])
+# def get_all_items():
+#     items = []
 
-    doc_ref = store.collection(u'items')  # .limit(2)
+#     doc_ref = store.collection(u'items')  # .limit(2)
+
+#     try:
+#         docs = doc_ref.get()
+#         for doc in docs:
+#             items.append(doc.to_dict())
+#     except google.cloud.exceptions.NotFound:
+#         print(u'Missing data')
+
+#     return jsonify({'items': items})
+
+
+@app.route('/api/v1.0/most_recent/items', methods=['GET'])
+def get_most_recent_items():
+    items = []
+    n = int(request.args.get('n'))
+
+    doc_ref = store.collection(u'items').order_by(
+        u'date_time_added', direction=firestore.Query.DESCENDING).limit(n)
 
     try:
         docs = doc_ref.get()
@@ -53,7 +72,31 @@ def get_n_items():
     try:
         docs = doc_ref.get()
         for doc in docs:
+            # doc.id
             items.append(doc.to_dict())
+    except google.cloud.exceptions.NotFound:
+        print(u'Missing data')
+
+    return jsonify({'items': items})
+
+
+@app.route('/api/v1.0/distance/items', methods=['GET'])
+def get_distance_items():
+    items = []
+    lat = float(request.args.get('lat'))
+    lon = float(request.args.get('lon'))
+    dist = request.args.get('distance_mi')
+
+    location = (lat, lon)
+
+    doc_ref = store.collection(u'items')
+    try:
+        docs = doc_ref.get()
+        for doc in docs:
+            coords = (doc.to_dict()['lat'], doc.to_dict()['lon'])
+
+            if round(distance.distance(location, coords).miles, 2) <= float(dist):
+                items.append(doc.to_dict())
     except google.cloud.exceptions.NotFound:
         print(u'Missing data')
 
@@ -112,7 +155,7 @@ def site_map():
 
 if __name__ == '__main__':
     # test
-    app.run(debug=True)
+    # app.run(debug=True)
 
     # production
-    # app.run(debug=False, port=8080)
+    app.run(debug=False, port=8080)
