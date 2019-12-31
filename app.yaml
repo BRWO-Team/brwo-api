@@ -1,3 +1,4 @@
+service: my-second-app
 runtime: python
 env: flex
 entrypoint: gunicorn -b :$PORT app:app
