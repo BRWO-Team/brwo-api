@@ -56,8 +56,8 @@ def get_most_recent_items_lazy():
     try:
         docs = doc_ref.get()
         for doc in docs:
-            # items.append(doc.to_dict())
-            items.append(doc.id)
+            items.append(doc.to_dict())
+            # items.append(doc.id)
     except google.cloud.exceptions.NotFound:
         print(u'Missing data')
 
@@ -75,8 +75,8 @@ def get_most_recent_items():
     try:
         docs = doc_ref.get()
         for doc in docs:
-            # items.append(doc.to_dict())
-            items.append(doc.id)
+            items.append(doc.to_dict())
+            # items.append(doc.id)
     except google.cloud.exceptions.NotFound:
         print(u'Missing data')
 
