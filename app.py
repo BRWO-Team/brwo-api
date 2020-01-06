@@ -44,6 +44,26 @@ def get_count_items():
 #     return jsonify({'items': items})
 
 
+@app.route('/api/v1.0/lazy/most_recent/items', methods=['GET'])
+def get_most_recent_items_lazy():
+    n = int(request.args.get('n'))
+    page = int(request.args.get('page'))
+    limit = n * page
+    items = []
+    doc_ref = store.collection(u'items').order_by(
+        u'date_time_added', direction=firestore.Query.DESCENDING).limit(limit)
+
+    try:
+        docs = doc_ref.get()
+        for doc in docs:
+            # items.append(doc.to_dict())
+            items.append(doc.id)
+    except google.cloud.exceptions.NotFound:
+        print(u'Missing data')
+
+    return jsonify({'items': items[-n:]})
+
+
 @app.route('/api/v1.0/most_recent/items', methods=['GET'])
 def get_most_recent_items():
     items = []
@@ -55,7 +75,8 @@ def get_most_recent_items():
     try:
         docs = doc_ref.get()
         for doc in docs:
-            items.append(doc.to_dict())
+            # items.append(doc.to_dict())
+            items.append(doc.id)
     except google.cloud.exceptions.NotFound:
         print(u'Missing data')
 
@@ -108,7 +129,8 @@ def get_users_items():
     items = []
     uid = int(request.args.get('userid'))
 
-    doc_ref = store.collection(u'items').where(u'userid', u'==', uid)
+    doc_ref = store.collection(u'items').where(u'userid', u'==', uid).order_by(
+        u'date_time_added', direction=firestore.Query.DESCENDING)
 
     try:
         docs = doc_ref.get()
@@ -139,6 +161,24 @@ def has_no_empty_params(rule):
     defaults = rule.defaults if rule.defaults is not None else ()
     arguments = rule.arguments if rule.arguments is not None else ()
     return len(defaults) >= len(arguments)
+
+
+@app.route('/api/v1.0/items/categories', methods=['GET'])
+def get_categories_items():
+    categories = []
+
+    doc_ref = store.collection(u'items')
+
+    try:
+        docs = doc_ref.get()
+        for doc in docs:
+            for cat in doc.to_dict()['categories']:
+                if cat not in categories:
+                    categories.append(cat)
+    except google.cloud.exceptions.NotFound:
+        print(u'Missing data')
+
+    return jsonify({'categories': sorted(categories)})
 
 
 @app.route("/site-map")
