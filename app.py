@@ -52,16 +52,34 @@ def get_most_recent_items_lazy():
     items = []
     doc_ref = store.collection(u'items').order_by(
         u'date_time_added', direction=firestore.Query.DESCENDING).limit(limit)
+    max_len = sum(1 for _ in store.collection(u'items').order_by(
+        u'date_time_added', direction=firestore.Query.DESCENDING).get()
+    )
+    if limit > max_len:
+        if limit - max_len < n:
+            try:
+                docs = doc_ref.get()
+                for doc in docs:
+                    items.append(doc.to_dict())
+            except google.cloud.exceptions.NotFound:
+                print(u'Missing data')
 
-    try:
-        docs = doc_ref.get()
-        for doc in docs:
-            items.append(doc.to_dict())
-            # items.append(doc.id)
-    except google.cloud.exceptions.NotFound:
-        print(u'Missing data')
+            print('Partial return: ' + str(-(n - (limit - max_len))))
+            return jsonify({'items': items[-(n - (limit - max_len)):], 'no_more_results': True})
+        else:
+            print('No return')
+            return jsonify({'items': [], 'no_more_results': True})
+    else:
+        try:
+            docs = doc_ref.get()
+            for doc in docs:
+                items.append(doc.to_dict())
+                # items.append(doc.id)
+        except google.cloud.exceptions.NotFound:
+            print(u'Missing data')
 
-    return jsonify({'items': items[-n:]})
+        print('Normal return: ' + str(-n))
+        return jsonify({'items': items[-n:], 'no_more_results': False})
 
 
 @app.route('/api/v1.0/most_recent/items', methods=['GET'])
