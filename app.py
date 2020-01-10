@@ -211,6 +211,14 @@ def site_map():
     return dict(links)
 
 
+@app.route('/api/v1.0/items/postnew', methods=['POST'])
+def new_item_post():
+    data = request.get_json()
+    print(data)
+    res = {'status': 'ok'}
+    return jsonify(res)
+
+
 if __name__ == '__main__':
     # test
     # app.run(debug=True)
