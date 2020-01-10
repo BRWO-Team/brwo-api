@@ -215,6 +215,7 @@ def site_map():
 def new_item_post():
     data = request.get_json()
     print(data)
+    store.collection(u'items').add(data)
     res = {'status': 'ok'}
     return jsonify(res)
 
