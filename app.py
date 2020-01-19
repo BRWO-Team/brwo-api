@@ -1,4 +1,5 @@
 from flask import Flask, jsonify, request, url_for
+from flask_cors import CORS, cross_origin
 import firebase_admin
 from firebase_admin import credentials, firestore
 import google.cloud
@@ -9,6 +10,7 @@ from geopy import distance
 # activate venv - brwo-venv\Scripts\activate
 
 app = Flask(__name__)
+CORS(app)
 
 # FIREBASE
 # Use the application default credentials
@@ -211,13 +213,57 @@ def site_map():
     return dict(links)
 
 
-@app.route('/api/v1.0/items/postnew', methods=['POST'])
+@app.route('/api/v1.0/items', methods=['POST'])
 def new_item_post():
-    data = request.get_json()
-    print(data)
-    store.collection(u'items').add(data)
-    res = {'status': 'ok'}
+    try:
+        data = request.get_json()
+        print(data)
+        store.collection(u'items').add(data)
+        res = {'status': 'ok'}
+    except:
+        res = {'status': 'error'}
     return jsonify(res)
+
+
+@app.route('/api/v1.0/items/submitimage', methods=['POST'])
+def submit_image():
+    print(request.files.get('image', ''))
+
+    return jsonify({'status': 'ok'})
+
+
+@app.route('/api/v1.0/user/update', methods=['POST'])
+def user_update():
+    try:
+        data = request.get_json()
+        id = data['uid']
+        user_ids = set([i.id for i in store.collection(u'users').get()])
+        if id in user_ids:
+            ref = store.collection(u'users').document(id)
+            ref.update(data)
+        else:
+            store.collection(u'users').document(id).set(data)
+        res = {'status': 'ok', 'user_data': data}
+    except Exception as e:
+        print(e)
+        res = {'status': 'error'}
+    return jsonify(res)
+
+
+@app.route('/api/v1.0/user/getinfo', methods=['GET'])
+def get_users_info():
+    uid = request.args.get('uid')
+    doc_ref = store.collection(u'users').where(u'uid', u'==', uid)
+    try:
+        info = [i.to_dict() for i in doc_ref.get()]
+        if len(info) == 1:
+            return jsonify({'user_info': info[0]})
+        elif len(info) < 1:
+            return jsonify({'error': 'No user found with that id'})
+        elif len(info) > 1:
+            return jsonify({'error': 'Multiple users found with this id, there is an issue with the data'})
+    except google.cloud.exceptions.NotFound:
+        return jsonify({'error': 'Error encountered'})
 
 
 if __name__ == '__main__':
