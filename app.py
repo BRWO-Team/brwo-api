@@ -220,13 +220,17 @@ def site_map():
 
 @app.route('/api/v1.0/items', methods=['POST'])
 def new_item_post():
+    try:
+        os.mkdir('image')
+    except:
+        pass
+
     data = json.loads(request.form['data'])
     data['images'] = []
     data['date_time_added'] = datetime.datetime.now()
-    image_count = request.form['imageCount']
 
-    for i in range(int(image_count)):
-        image = request.files.get('image' + str(i+1))
+    for i in request.files:
+        image = request.files[i]
 
         image.save(os.path.join('image', image.filename))
 
@@ -248,8 +252,10 @@ def new_item_post():
         data['images'].append(link)
 
         time.sleep(1)
+    try:
         shutil.rmtree('image')
-        os.mkdir('image')
+    except:
+        pass
     try:
         # print(data)
         store.collection(u'items').add(data)
@@ -325,7 +331,7 @@ def get_users_info():
 
 if __name__ == '__main__':
     # test
-    # app.run(debug=True)
+    app.run(debug=True)
 
     # production
-    app.run(debug=False, port=8080)
+    # app.run(debug=False, port=8080)
