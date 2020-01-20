@@ -4,7 +4,12 @@ import firebase_admin
 from firebase_admin import credentials, firestore
 import google.cloud
 import requests
+import os
+import shutil
+import time
+import json
 from geopy import distance
+import datetime
 
 
 # activate venv - brwo-venv\Scripts\activate
@@ -215,21 +220,45 @@ def site_map():
 
 @app.route('/api/v1.0/items', methods=['POST'])
 def new_item_post():
+    data = json.loads(request.form['data'])
+    data['images'] = []
+    data['date_time_added'] = datetime.datetime.now()
+    image_count = request.form['imageCount']
+
+    for i in range(int(image_count)):
+        image = request.files.get('image' + str(i+1))
+
+        image.save(os.path.join('image', image.filename))
+
+        url = "https://api.imgur.com/3/upload"
+        payload = {'type': 'file'}
+        with open('image/' + image.filename, 'rb') as image_file:
+            files = [
+                ('image', image_file)
+            ]
+            headers = {
+                'Authorization': 'Client-ID cbd7000560fd3b7',
+                'Authorization': 'Bearer 4b570172640f7938523c0f58d3e74ecccd729e76'
+            }
+            response = requests.request(
+                "POST", url, headers=headers, data=payload, files=files)
+
+            link = response.json()['data']['link']
+
+        data['images'].append(link)
+
+        time.sleep(1)
+        shutil.rmtree('image')
+        os.mkdir('image')
     try:
-        data = request.get_json()
-        print(data)
+        # print(data)
         store.collection(u'items').add(data)
-        res = {'status': 'ok'}
+        res = {'status': 'ok', 'data': data}
+        if data is None:
+            raise Exception
     except:
         res = {'status': 'error'}
     return jsonify(res)
-
-
-@app.route('/api/v1.0/items/submitimage', methods=['POST'])
-def submit_image():
-    print(request.files.get('image', ''))
-
-    return jsonify({'status': 'ok'})
 
 
 @app.route('/api/v1.0/user/update', methods=['POST'])
@@ -264,6 +293,34 @@ def get_users_info():
             return jsonify({'error': 'Multiple users found with this id, there is an issue with the data'})
     except google.cloud.exceptions.NotFound:
         return jsonify({'error': 'Error encountered'})
+
+
+# @app.route('/api/v1.0/items/submitimage', methods=['POST'])
+# def submit_image():
+#     image = request.files.get('image', '')
+
+#     image.save(os.path.join('image', image.filename))
+
+#     url = "https://api.imgur.com/3/upload"
+#     payload = {'type': 'file'}
+#     with open('image/' + image.filename, 'rb') as image_file:
+#         files = [
+#             ('image', image_file)
+#         ]
+#         headers = {
+#             'Authorization': 'Client-ID cbd7000560fd3b7',
+#             'Authorization': 'Bearer 4b570172640f7938523c0f58d3e74ecccd729e76'
+#         }
+#         response = requests.request(
+#             "POST", url, headers=headers, data=payload, files=files)
+
+#         link = response.json()['data']['link']
+
+#     time.sleep(1)
+#     shutil.rmtree('image')
+#     os.mkdir('image')
+
+#     return jsonify({'status': 'ok', 'url': link})
 
 
 if __name__ == '__main__':
