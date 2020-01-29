@@ -10,6 +10,7 @@ import time
 import json
 from geopy import distance
 import datetime
+from fuzzywuzzy import fuzz
 
 
 # activate venv - brwo-venv\Scripts\activate
@@ -124,6 +125,30 @@ def get_n_items():
         print(u'Missing data')
 
     return jsonify({'items': items})
+
+
+@app.route('/api/v1.0/fuzzy/items', methods=['GET'])
+def get_fuzzy_items():
+    items = []
+    query = request.args.get('query')
+
+    doc_ref = store.collection(u'items')
+
+    try:
+        docs = doc_ref.get()
+        for doc in docs:
+            match_ratio = fuzz.partial_ratio(query, doc.to_dict()['title'])
+            if match_ratio > 70:
+                data = doc.to_dict()
+                # data = {}
+                # data['title'] = doc.to_dict()['title']
+                data['match_ratio'] = match_ratio
+                items.append(data)
+    except google.cloud.exceptions.NotFound:
+        print(u'Missing data')
+
+    sorted_items = sorted(items, key=lambda k: k['match_ratio'], reverse=True)
+    return jsonify({'items': sorted_items})
 
 
 @app.route('/api/v1.0/distance/items', methods=['GET'])
@@ -331,7 +356,7 @@ def get_users_info():
 
 if __name__ == '__main__':
     # test
-    # app.run(debug=True)
+    app.run(debug=True)
 
     # production
-    app.run(debug=False, port=8080)
+    # app.run(debug=False, port=8080)
