@@ -39,6 +39,13 @@ firebase_app = firebase_admin.initialize_app(cred)
 store = firestore.client()
 
 
+def add_ids():
+    for doc in store.collection(u'items').get():
+        doc_id = doc.id
+        item = store.collection(u'items').document(doc_id)
+        item.update({u'item_id': doc_id})
+
+
 # ROUTES
 @app.route('/', methods=['GET'])
 def index():
@@ -188,6 +195,25 @@ def get_distance_items():
     return jsonify({'items': items})
 
 
+@app.route('/api/v1.0/item', methods=['GET'])
+def get_item_by_id():
+    item_id = request.args.get('item_id')
+
+    doc_ref = store.collection(u'items').where(u'item_id', u'==', item_id)
+
+    try:
+        # count = sum(1 for _ in doc_ref.get())
+        item = next(doc_ref.get()).to_dict()
+    except google.cloud.exceptions.NotFound:
+        print(u'Missing data')
+        return {'status': 'error'}
+    except StopIteration:
+        print(u'No items with that id')
+        return {'status': 'error', 'error_message': "No item with that id"}
+
+    return jsonify({'status': 'ok', 'item': item})
+
+
 @app.route('/api/v1.0/user/items', methods=['GET'])
 def get_users_items():
     items = []
@@ -297,7 +323,11 @@ def new_item_post():
         pass
     try:
         # print(data)
-        store.collection(u'items').add(data)
+        # store.collection(u'items').add(data)
+
+        new_city_ref = store.collection(u'items').document()
+        data['item_id'] = new_city_ref.id
+        new_city_ref.set(data)
         res = {'status': 'ok', 'data': data}
         if data is None:
             raise Exception
@@ -366,11 +396,9 @@ def get_users_info():
 #     os.mkdir('image')
 
 #     return jsonify({'status': 'ok', 'url': link})
-
-
 if __name__ == '__main__':
     # test
-    app.run(debug=True)
+    # app.run(debug=True)
 
     # production
-    # app.run(debug=False, port=8080)
+    app.run(debug=False, port=8080)
