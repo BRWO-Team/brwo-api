@@ -1,0 +1,31 @@
+{
+  "openapi": "3.0.0",
+  "basePath": "/BRWO/BRWO_API/1",
+  "info": {
+    "version": "1.0.0",
+    "title": "BRWO_API"
+  },
+  "paths": {
+    "/api/v1.0/count/items": {
+      "get": {
+        "description": "Returns the count of items",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "schema": {
+              "type": "string",
+              "items": {
+                "type": "string",
+                "properties": {
+                  "artist_name": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
