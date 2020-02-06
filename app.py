@@ -14,6 +14,11 @@ from fuzzywuzzy import fuzz
 from flask_swagger_ui import get_swaggerui_blueprint
 
 
+DEV = False
+PORT = 8080
+# PORT = 5000
+
+
 # activate venv - brwo-venv\Scripts\activate
 
 app = Flask(__name__)
@@ -32,6 +37,7 @@ SWAGGERUI_BLUEPRINT = get_swaggerui_blueprint(
 app.register_blueprint(SWAGGERUI_BLUEPRINT, url_prefix=SWAGGER_URL)
 ### end swagger specific ###
 
+
 # FIREBASE
 # Use the application default credentials
 cred = credentials.Certificate("./ServiceAccountKey.json")
@@ -40,37 +46,62 @@ store = firestore.client()
 
 
 def add_ids():
+    """adds document ids to document body"""
     for doc in store.collection(u'items').get():
         doc_id = doc.id
         item = store.collection(u'items').document(doc_id)
         item.update({u'item_id': doc_id})
 
 
-# ROUTES
+#ROUTES##################################################################################
 @app.route('/', methods=['GET'])
 def index():
     return "You're home"
 
 
+def has_no_empty_params(rule):
+    defaults = rule.defaults if rule.defaults is not None else ()
+    arguments = rule.arguments if rule.arguments is not None else ()
+    return len(defaults) >= len(arguments)
+
+
+@app.route("/site-map")
+def site_map():
+    links = []
+    for rule in app.url_map.iter_rules():
+        # Filter out rules we can't navigate to in a browser
+        # and rules that require parameters
+        if "GET" in rule.methods and has_no_empty_params(rule):
+            url = url_for(rule.endpoint, **(rule.defaults or {}))
+            links.append((url, rule.endpoint))
+    return dict(links)
+
+
+##GET####################################################################################
+
+###ITEMS#################################################################################
 @app.route('/api/v1.0/count/items', methods=['GET'])
 def get_count_items():
     return str(len(list(store.collection('items').get())))
 
 
-# @app.route('/api/v1.0/all/items', methods=['GET'])
-# def get_all_items():
-#     items = []
+@app.route('/api/v1.0/most_recent/items', methods=['GET'])
+def get_most_recent_items():
+    items = []
+    n = int(request.args.get('n'))
 
-#     doc_ref = store.collection(u'items')  # .limit(2)
+    doc_ref = store.collection(u'items').order_by(
+        u'date_time_added', direction=firestore.Query.DESCENDING).limit(n)
 
-#     try:
-#         docs = doc_ref.get()
-#         for doc in docs:
-#             items.append(doc.to_dict())
-#     except google.cloud.exceptions.NotFound:
-#         print(u'Missing data')
+    try:
+        docs = doc_ref.get()
+        for doc in docs:
+            items.append(doc.to_dict())
+            # items.append(doc.id)
+    except google.cloud.exceptions.NotFound:
+        print(u'Missing data')
 
-#     return jsonify({'items': items})
+    return jsonify({'items': items})
 
 
 @app.route('/api/v1.0/lazy/most_recent/items', methods=['GET'])
@@ -109,25 +140,6 @@ def get_most_recent_items_lazy():
 
         print('Normal return: ' + str(-n))
         return jsonify({'items': items[-n:], 'no_more_results': False})
-
-
-@app.route('/api/v1.0/most_recent/items', methods=['GET'])
-def get_most_recent_items():
-    items = []
-    n = int(request.args.get('n'))
-
-    doc_ref = store.collection(u'items').order_by(
-        u'date_time_added', direction=firestore.Query.DESCENDING).limit(n)
-
-    try:
-        docs = doc_ref.get()
-        for doc in docs:
-            items.append(doc.to_dict())
-            # items.append(doc.id)
-    except google.cloud.exceptions.NotFound:
-        print(u'Missing data')
-
-    return jsonify({'items': items})
 
 
 @app.route('/api/v1.0/n/items', methods=['GET'])
@@ -214,6 +226,26 @@ def get_item_by_id():
     return jsonify({'status': 'ok', 'item': item})
 
 
+@app.route('/api/v1.0/item/category', methods=['GET'])
+def get_item_by_category():
+    items = []
+    category = request.args.get('category')
+
+    doc_ref = store.collection(u'items').where(
+        u'categories', u'array_contains', category)
+
+    try:
+        docs = doc_ref.get()
+        for doc in docs:
+            items.append(doc.to_dict())
+    except google.cloud.exceptions.NotFound:
+        print(u'Missing data')
+        return {'status': 'error'}
+
+    return jsonify({'status': 'ok', 'items': items})
+
+
+###USERS#################################################################################
 @app.route('/api/v1.0/user/items', methods=['GET'])
 def get_users_items():
     items = []
@@ -232,6 +264,43 @@ def get_users_items():
     return jsonify({'items': items})
 
 
+@app.route('/api/v1.0/user/getinfo', methods=['GET'])
+def get_users_info():
+    uid = request.args.get('uid')
+    doc_ref = store.collection(u'users').where(u'uid', u'==', uid)
+    try:
+        info = [i.to_dict() for i in doc_ref.get()]
+        if len(info) == 1:
+            return jsonify({'user_info': info[0]})
+        elif len(info) < 1:
+            return jsonify({'error': 'No user found with that id'})
+        elif len(info) > 1:
+            return jsonify({'error': 'Multiple users found with this id, there is an issue with the data'})
+    except google.cloud.exceptions.NotFound:
+        return jsonify({'error': 'Error encountered'})
+
+
+###CATEGORIES############################################################################
+@app.route('/api/v1.0/items/categories', methods=['GET'])
+def get_categories_items():
+    categories = []
+
+    doc_ref = store.collection(u'items')
+
+    try:
+        docs = doc_ref.get()
+        for doc in docs:
+            if "categories" in doc.to_dict():
+                for cat in doc.to_dict()['categories']:
+                    if cat not in categories:
+                        categories.append(cat)
+    except google.cloud.exceptions.NotFound:
+        print(u'Missing data')
+
+    return jsonify({'categories': sorted(categories)})
+
+
+###GEOCODE###############################################################################
 @app.route('/api/v1.0/geocode', methods=['GET'])
 def geocode():
     lat = request.args.get('lat')
@@ -247,42 +316,9 @@ def geocode():
     return zip_code
 
 
-def has_no_empty_params(rule):
-    defaults = rule.defaults if rule.defaults is not None else ()
-    arguments = rule.arguments if rule.arguments is not None else ()
-    return len(defaults) >= len(arguments)
+##POST###################################################################################
 
-
-@app.route('/api/v1.0/items/categories', methods=['GET'])
-def get_categories_items():
-    categories = []
-
-    doc_ref = store.collection(u'items')
-
-    try:
-        docs = doc_ref.get()
-        for doc in docs:
-            for cat in doc.to_dict()['categories']:
-                if cat not in categories:
-                    categories.append(cat)
-    except google.cloud.exceptions.NotFound:
-        print(u'Missing data')
-
-    return jsonify({'categories': sorted(categories)})
-
-
-@app.route("/site-map")
-def site_map():
-    links = []
-    for rule in app.url_map.iter_rules():
-        # Filter out rules we can't navigate to in a browser
-        # and rules that require parameters
-        if "GET" in rule.methods and has_no_empty_params(rule):
-            url = url_for(rule.endpoint, **(rule.defaults or {}))
-            links.append((url, rule.endpoint))
-    return dict(links)
-
-
+###ITEMS#################################################################################
 @app.route('/api/v1.0/items', methods=['POST'])
 def new_item_post():
     try:
@@ -335,7 +371,7 @@ def new_item_post():
         res = {'status': 'error'}
     return jsonify(res)
 
-
+###USERS#################################################################################
 @app.route('/api/v1.0/user/update', methods=['POST'])
 def user_update():
     try:
@@ -354,20 +390,22 @@ def user_update():
     return jsonify(res)
 
 
-@app.route('/api/v1.0/user/getinfo', methods=['GET'])
-def get_users_info():
-    uid = request.args.get('uid')
-    doc_ref = store.collection(u'users').where(u'uid', u'==', uid)
-    try:
-        info = [i.to_dict() for i in doc_ref.get()]
-        if len(info) == 1:
-            return jsonify({'user_info': info[0]})
-        elif len(info) < 1:
-            return jsonify({'error': 'No user found with that id'})
-        elif len(info) > 1:
-            return jsonify({'error': 'Multiple users found with this id, there is an issue with the data'})
-    except google.cloud.exceptions.NotFound:
-        return jsonify({'error': 'Error encountered'})
+##DEPRECATED#############################################################################
+
+# @app.route('/api/v1.0/all/items', methods=['GET'])
+# def get_all_items():
+#     items = []
+
+#     doc_ref = store.collection(u'items')  # .limit(2)
+
+#     try:
+#         docs = doc_ref.get()
+#         for doc in docs:
+#             items.append(doc.to_dict())
+#     except google.cloud.exceptions.NotFound:
+#         print(u'Missing data')
+
+#     return jsonify({'items': items})
 
 
 # @app.route('/api/v1.0/items/submitimage', methods=['POST'])
@@ -394,11 +432,14 @@ def get_users_info():
 #     time.sleep(1)
 #     shutil.rmtree('image')
 #     os.mkdir('image')
-
 #     return jsonify({'status': 'ok', 'url': link})
+
+
 if __name__ == '__main__':
+    app.run(debug=DEV, port=PORT)
+
     # test
     # app.run(debug=True)
 
     # production
-    app.run(debug=False, port=8080)
+    # app.run(debug=False, port=8080)

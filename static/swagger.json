@@ -8,17 +8,109 @@
   "paths": {
     "/api/v1.0/count/items": {
       "get": {
+        "summary": "Count of Items",
         "description": "Returns the count of items",
         "parameters": [],
         "responses": {
           "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string",
+                  "example": "39"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1.0/most_recent/items": {
+      "get": {
+        "summary": "Most recent items",
+        "description": "Get N number of most recently added items",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "n",
             "schema": {
-              "type": "string",
-              "items": {
-                "type": "string",
-                "properties": {
-                  "artist_name": {
-                    "type": "string"
+              "type": "integer"
+            },
+            "description": "Number of results you want returned"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "categories": {
+                      "type": "list",
+                      "description": "list of categories"
+                    },
+                    "date_time_added": {
+                      "type": "datetime",
+                      "description": "datetime item added"
+                    },
+                    "description": {
+                      "type": "string",
+                      "description": "description of item"
+                    },
+                    "images": {
+                      "type": "list",
+                      "description": "list of image urls"
+                    },
+                    "item_id": {
+                      "type": "string",
+                      "description": "ID of item"
+                    },
+                    "lat": {
+                      "type": "float",
+                      "description": "latitude of item"
+                    },
+                    "lon": {
+                      "type": "float",
+                      "description": "longitude of item"
+                    },
+                    "price": {
+                      "type": "float",
+                      "description": "price of item"
+                    },
+                    "title": {
+                      "type": "string",
+                      "description": "title of item"
+                    },
+                    "userid": {
+                      "type": "integer",
+                      "description": "ID of user who added item"
+                    },
+                    "zipcode": {
+                      "type": "string",
+                      "description": "zipcode of item"
+                    }
+                  },
+                  "example": {
+                    "items": [
+                      {
+                        "categories": ["misc"],
+                        "date_time_added": "Fri, 10 Jan 2020 22:31:08 GMT",
+                        "description": "This is a medium length description. This is only useful for testing purposes to see how text behaves on the frontend",
+                        "images": [
+                          "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT-mZqAmgbaSXDFuLmNdgvylg8ullk3oRj8bQ6PHJb9hmICgoIBEQ&s"
+                        ],
+                        "item_id": "DP0HtmoBn0ApNE41oQMo",
+                        "lat": 39.9833,
+                        "lon": -75.2368,
+                        "price": 0.49,
+                        "title": "Miscellaneous, everything else",
+                        "userid": 47,
+                        "zipcode": "19131"
+                      }
+                    ]
                   }
                 }
               }
