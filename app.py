@@ -14,7 +14,13 @@ from fuzzywuzzy import fuzz
 from flask_swagger_ui import get_swaggerui_blueprint
 
 
-DEV = False
+# TODO Fix issue with ​/api​/v1.0​/lazy​/most_recent​/items - should return
+# no_more_results as true if last page and not partial or no return
+# result set
+# TODO make swagger response for ​/api​/v1.0​/lazy​/most_recent​/items more clear
+
+
+DEV = True
 PORT = 8080
 # PORT = 5000
 
@@ -197,10 +203,11 @@ def get_distance_items():
     try:
         docs = doc_ref.get()
         for doc in docs:
-            coords = (doc.to_dict()['lat'], doc.to_dict()['lon'])
+            if 'lat' in doc.to_dict().keys() and 'lon' in doc.to_dict().keys():
+                coords = (doc.to_dict()['lat'], doc.to_dict()['lon'])
 
-            if round(distance.distance(location, coords).miles, 2) <= float(dist):
-                items.append(doc.to_dict())
+                if round(distance.distance(location, coords).miles, 2) <= float(dist):
+                    items.append(doc.to_dict())
     except google.cloud.exceptions.NotFound:
         print(u'Missing data')
 

@@ -118,6 +118,611 @@
           }
         }
       }
+    },
+
+    "/api/v1.0/lazy/most_recent/items": {
+      "get": {
+        "summary": "Most recent items for lazy loading",
+        "description": "Get paginated N number of most recently added items. Also returns no_more_results property to say whether there are more results after current page",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "n",
+            "schema": {
+              "type": "integer"
+            },
+            "description": "Number of results you want returned"
+          },
+          {
+            "in": "query",
+            "name": "page",
+            "schema": {
+              "type": "integer"
+            },
+            "description": "Page number of results you want returned"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "categories": {
+                      "type": "list",
+                      "description": "list of categories"
+                    },
+                    "date_time_added": {
+                      "type": "datetime",
+                      "description": "datetime item added"
+                    },
+                    "description": {
+                      "type": "string",
+                      "description": "description of item"
+                    },
+                    "images": {
+                      "type": "list",
+                      "description": "list of image urls"
+                    },
+                    "item_id": {
+                      "type": "string",
+                      "description": "ID of item"
+                    },
+                    "lat": {
+                      "type": "float",
+                      "description": "latitude of item"
+                    },
+                    "lon": {
+                      "type": "float",
+                      "description": "longitude of item"
+                    },
+                    "price": {
+                      "type": "float",
+                      "description": "price of item"
+                    },
+                    "title": {
+                      "type": "string",
+                      "description": "title of item"
+                    },
+                    "userid": {
+                      "type": "integer",
+                      "description": "ID of user who added item"
+                    },
+                    "zipcode": {
+                      "type": "string",
+                      "description": "zipcode of item"
+                    }
+                  },
+                  "example": {
+                    "items": [
+                      {
+                        "categories": ["misc"],
+                        "date_time_added": "Fri, 10 Jan 2020 22:31:08 GMT",
+                        "description": "This is a medium length description. This is only useful for testing purposes to see how text behaves on the frontend",
+                        "images": [
+                          "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT-mZqAmgbaSXDFuLmNdgvylg8ullk3oRj8bQ6PHJb9hmICgoIBEQ&s"
+                        ],
+                        "item_id": "DP0HtmoBn0ApNE41oQMo",
+                        "lat": 39.9833,
+                        "lon": -75.2368,
+                        "price": 0.49,
+                        "title": "Miscellaneous, everything else",
+                        "userid": 47,
+                        "zipcode": "19131"
+                      }
+                    ],
+                    "no_more_results": false
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1.0/n/items": {
+      "get": {
+        "summary": "Get N number of items",
+        "description": "Get N number of random items",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "n",
+            "schema": {
+              "type": "integer"
+            },
+            "description": "Number of results you want returned"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "categories": {
+                      "type": "list",
+                      "description": "list of categories"
+                    },
+                    "date_time_added": {
+                      "type": "datetime",
+                      "description": "datetime item added"
+                    },
+                    "description": {
+                      "type": "string",
+                      "description": "description of item"
+                    },
+                    "images": {
+                      "type": "list",
+                      "description": "list of image urls"
+                    },
+                    "item_id": {
+                      "type": "string",
+                      "description": "ID of item"
+                    },
+                    "lat": {
+                      "type": "float",
+                      "description": "latitude of item"
+                    },
+                    "lon": {
+                      "type": "float",
+                      "description": "longitude of item"
+                    },
+                    "price": {
+                      "type": "float",
+                      "description": "price of item"
+                    },
+                    "title": {
+                      "type": "string",
+                      "description": "title of item"
+                    },
+                    "userid": {
+                      "type": "integer",
+                      "description": "ID of user who added item"
+                    },
+                    "zipcode": {
+                      "type": "string",
+                      "description": "zipcode of item"
+                    }
+                  },
+                  "example": {
+                    "items": [
+                      {
+                        "categories": ["misc"],
+                        "date_time_added": "Fri, 10 Jan 2020 22:31:08 GMT",
+                        "description": "This is a medium length description. This is only useful for testing purposes to see how text behaves on the frontend",
+                        "images": [
+                          "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT-mZqAmgbaSXDFuLmNdgvylg8ullk3oRj8bQ6PHJb9hmICgoIBEQ&s"
+                        ],
+                        "item_id": "DP0HtmoBn0ApNE41oQMo",
+                        "lat": 39.9833,
+                        "lon": -75.2368,
+                        "price": 0.49,
+                        "title": "Miscellaneous, everything else",
+                        "userid": 47,
+                        "zipcode": "19131"
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1.0/fuzzy/items": {
+      "get": {
+        "summary": "Fuzzy search item titles",
+        "description": "Return items that have titles roughly matching search term sorted by best to worst match ratio",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "query",
+            "schema": {
+              "type": "string"
+            },
+            "description": "Search term"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "categories": {
+                      "type": "list",
+                      "description": "list of categories"
+                    },
+                    "date_time_added": {
+                      "type": "datetime",
+                      "description": "datetime item added"
+                    },
+                    "description": {
+                      "type": "string",
+                      "description": "description of item"
+                    },
+                    "images": {
+                      "type": "list",
+                      "description": "list of image urls"
+                    },
+                    "item_id": {
+                      "type": "string",
+                      "description": "ID of item"
+                    },
+                    "lat": {
+                      "type": "float",
+                      "description": "latitude of item"
+                    },
+                    "lon": {
+                      "type": "float",
+                      "description": "longitude of item"
+                    },
+                    "match_ratio": {
+                      "type": "integer",
+                      "description": "match ratio"
+                    },
+                    "price": {
+                      "type": "float",
+                      "description": "price of item"
+                    },
+                    "title": {
+                      "type": "string",
+                      "description": "title of item"
+                    },
+                    "userid": {
+                      "type": "integer",
+                      "description": "ID of user who added item"
+                    },
+                    "zipcode": {
+                      "type": "string",
+                      "description": "zipcode of item"
+                    }
+                  },
+                  "example": {
+                    "items": [
+                      {
+                        "categories": ["misc"],
+                        "date_time_added": "Fri, 10 Jan 2020 22:30:58 GMT",
+                        "description": "This is a short description",
+                        "images": [
+                          "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT-mZqAmgbaSXDFuLmNdgvylg8ullk3oRj8bQ6PHJb9hmICgoIBEQ&s"
+                        ],
+                        "item_id": "3UEFiWpLNDTL3At3SJ43",
+                        "lat": 40.0736,
+                        "lon": -74.9954,
+                        "match_ratio": 92,
+                        "price": 19.96,
+                        "title": "Miscellaneous, everything else",
+                        "userid": 82,
+                        "zipcode": "19114"
+                      },
+                      {
+                        "categories": ["misc"],
+                        "date_time_added": "Fri, 10 Jan 2020 22:31:08 GMT",
+                        "description": "This is a medium length description. This is only useful for testing purposes to see how text behaves on the frontend",
+                        "images": [
+                          "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT-mZqAmgbaSXDFuLmNdgvylg8ullk3oRj8bQ6PHJb9hmICgoIBEQ&s"
+                        ],
+                        "item_id": "DP0HtmoBn0ApNE41oQMo",
+                        "lat": 39.9833,
+                        "lon": -75.2368,
+                        "match_ratio": 92,
+                        "price": 0.49,
+                        "title": "Miscellaneous, everything else",
+                        "userid": 47,
+                        "zipcode": "19131"
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1.0/distance/items": {
+      "get": {
+        "summary": "Items within distance",
+        "description": "Get items with a specified mile range of a coordinate",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "lat",
+            "schema": {
+              "type": "float"
+            },
+            "description": "Latitude of search coordinate"
+          },
+          {
+            "in": "query",
+            "name": "lon",
+            "schema": {
+              "type": "float"
+            },
+            "description": "Longitude of search coordinate"
+          },
+          {
+            "in": "query",
+            "name": "distance_mi",
+            "schema": {
+              "type": "float"
+            },
+            "description": "Distance in miles to search"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "categories": {
+                      "type": "list",
+                      "description": "list of categories"
+                    },
+                    "date_time_added": {
+                      "type": "datetime",
+                      "description": "datetime item added"
+                    },
+                    "description": {
+                      "type": "string",
+                      "description": "description of item"
+                    },
+                    "images": {
+                      "type": "list",
+                      "description": "list of image urls"
+                    },
+                    "item_id": {
+                      "type": "string",
+                      "description": "ID of item"
+                    },
+                    "lat": {
+                      "type": "float",
+                      "description": "latitude of item"
+                    },
+                    "lon": {
+                      "type": "float",
+                      "description": "longitude of item"
+                    },
+                    "price": {
+                      "type": "float",
+                      "description": "price of item"
+                    },
+                    "title": {
+                      "type": "string",
+                      "description": "title of item"
+                    },
+                    "userid": {
+                      "type": "integer",
+                      "description": "ID of user who added item"
+                    },
+                    "zipcode": {
+                      "type": "string",
+                      "description": "zipcode of item"
+                    }
+                  },
+                  "example": {
+                    "items": [
+                      {
+                        "categories": ["misc"],
+                        "date_time_added": "Fri, 10 Jan 2020 22:31:08 GMT",
+                        "description": "This is a medium length description. This is only useful for testing purposes to see how text behaves on the frontend",
+                        "images": [
+                          "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT-mZqAmgbaSXDFuLmNdgvylg8ullk3oRj8bQ6PHJb9hmICgoIBEQ&s"
+                        ],
+                        "item_id": "DP0HtmoBn0ApNE41oQMo",
+                        "lat": 39.9833,
+                        "lon": -75.2368,
+                        "price": 0.49,
+                        "title": "Miscellaneous, everything else",
+                        "userid": 47,
+                        "zipcode": "19131"
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1.0/item": {
+      "get": {
+        "summary": "Item by ID",
+        "description": "Get item by ID",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "item_id",
+            "schema": {
+              "type": "string"
+            },
+            "description": "ID of item"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "categories": {
+                      "type": "list",
+                      "description": "list of categories"
+                    },
+                    "date_time_added": {
+                      "type": "datetime",
+                      "description": "datetime item added"
+                    },
+                    "description": {
+                      "type": "string",
+                      "description": "description of item"
+                    },
+                    "images": {
+                      "type": "list",
+                      "description": "list of image urls"
+                    },
+                    "item_id": {
+                      "type": "string",
+                      "description": "ID of item"
+                    },
+                    "lat": {
+                      "type": "float",
+                      "description": "latitude of item"
+                    },
+                    "lon": {
+                      "type": "float",
+                      "description": "longitude of item"
+                    },
+                    "price": {
+                      "type": "float",
+                      "description": "price of item"
+                    },
+                    "title": {
+                      "type": "string",
+                      "description": "title of item"
+                    },
+                    "userid": {
+                      "type": "integer",
+                      "description": "ID of user who added item"
+                    },
+                    "zipcode": {
+                      "type": "string",
+                      "description": "zipcode of item"
+                    }
+                  },
+                  "example": {
+                    "item": [
+                      {
+                        "categories": ["misc"],
+                        "date_time_added": "Fri, 10 Jan 2020 22:31:08 GMT",
+                        "description": "This is a medium length description. This is only useful for testing purposes to see how text behaves on the frontend",
+                        "images": [
+                          "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT-mZqAmgbaSXDFuLmNdgvylg8ullk3oRj8bQ6PHJb9hmICgoIBEQ&s"
+                        ],
+                        "item_id": "DP0HtmoBn0ApNE41oQMo",
+                        "lat": 39.9833,
+                        "lon": -75.2368,
+                        "price": 0.49,
+                        "title": "Miscellaneous, everything else",
+                        "userid": 47,
+                        "zipcode": "19131"
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1.0/item/category": {
+      "get": {
+        "summary": "Items by Category",
+        "description": "Get all items that belong to the specified category",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "category",
+            "schema": {
+              "type": "string"
+            },
+            "description": "Category to search for"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "categories": {
+                      "type": "list",
+                      "description": "list of categories"
+                    },
+                    "date_time_added": {
+                      "type": "datetime",
+                      "description": "datetime item added"
+                    },
+                    "description": {
+                      "type": "string",
+                      "description": "description of item"
+                    },
+                    "images": {
+                      "type": "list",
+                      "description": "list of image urls"
+                    },
+                    "item_id": {
+                      "type": "string",
+                      "description": "ID of item"
+                    },
+                    "lat": {
+                      "type": "float",
+                      "description": "latitude of item"
+                    },
+                    "lon": {
+                      "type": "float",
+                      "description": "longitude of item"
+                    },
+                    "price": {
+                      "type": "float",
+                      "description": "price of item"
+                    },
+                    "title": {
+                      "type": "string",
+                      "description": "title of item"
+                    },
+                    "userid": {
+                      "type": "integer",
+                      "description": "ID of user who added item"
+                    },
+                    "zipcode": {
+                      "type": "string",
+                      "description": "zipcode of item"
+                    }
+                  },
+                  "example": {
+                    "items": [
+                      {
+                        "categories": ["misc"],
+                        "date_time_added": "Fri, 10 Jan 2020 22:31:08 GMT",
+                        "description": "This is a medium length description. This is only useful for testing purposes to see how text behaves on the frontend",
+                        "images": [
+                          "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT-mZqAmgbaSXDFuLmNdgvylg8ullk3oRj8bQ6PHJb9hmICgoIBEQ&s"
+                        ],
+                        "item_id": "DP0HtmoBn0ApNE41oQMo",
+                        "lat": 39.9833,
+                        "lon": -75.2368,
+                        "price": 0.49,
+                        "title": "Miscellaneous, everything else",
+                        "userid": 47,
+                        "zipcode": "19131"
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
     }
   }
 }
