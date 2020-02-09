@@ -1,13 +1,18 @@
 {
   "openapi": "3.0.0",
-  "basePath": "/BRWO/BRWO_API/1",
   "info": {
     "version": "1.0.0",
     "title": "BRWO_API"
   },
+  "servers": [
+    {
+      "url": "http://127.0.0.1:8080/api/v1.0"
+    }
+  ],
   "paths": {
-    "/api/v1.0/count/items": {
+    "/count/items": {
       "get": {
+        "tags": ["items"],
         "summary": "Count of Items",
         "description": "Returns the count of items",
         "parameters": [],
@@ -26,8 +31,9 @@
         }
       }
     },
-    "/api/v1.0/most_recent/items": {
+    "/most_recent/items": {
       "get": {
+        "tags": ["items"],
         "summary": "Most recent items",
         "description": "Get N number of most recently added items",
         "parameters": [
@@ -120,8 +126,9 @@
       }
     },
 
-    "/api/v1.0/lazy/most_recent/items": {
+    "/lazy/most_recent/items": {
       "get": {
+        "tags": ["items"],
         "summary": "Most recent items for lazy loading",
         "description": "Get paginated N number of most recently added items. Also returns no_more_results property to say whether there are more results after current page",
         "parameters": [
@@ -222,8 +229,9 @@
         }
       }
     },
-    "/api/v1.0/n/items": {
+    "/n/items": {
       "get": {
+        "tags": ["items"],
         "summary": "Get N number of items",
         "description": "Get N number of random items",
         "parameters": [
@@ -315,8 +323,9 @@
         }
       }
     },
-    "/api/v1.0/fuzzy/items": {
+    "/fuzzy/items": {
       "get": {
+        "tags": ["items"],
         "summary": "Fuzzy search item titles",
         "description": "Return items that have titles roughly matching search term sorted by best to worst match ratio",
         "parameters": [
@@ -429,8 +438,9 @@
         }
       }
     },
-    "/api/v1.0/distance/items": {
+    "/distance/items": {
       "get": {
+        "tags": ["items"],
         "summary": "Items within distance",
         "description": "Get items with a specified mile range of a coordinate",
         "parameters": [
@@ -538,8 +548,9 @@
         }
       }
     },
-    "/api/v1.0/item": {
+    "/item": {
       "get": {
+        "tags": ["items"],
         "summary": "Item by ID",
         "description": "Get item by ID",
         "parameters": [
@@ -631,8 +642,9 @@
         }
       }
     },
-    "/api/v1.0/item/category": {
+    "/item/category": {
       "get": {
+        "tags": ["items"],
         "summary": "Items by Category",
         "description": "Get all items that belong to the specified category",
         "parameters": [
