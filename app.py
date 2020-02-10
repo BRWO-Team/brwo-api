@@ -252,11 +252,10 @@ def get_item_by_category():
     return jsonify({'status': 'ok', 'items': items})
 
 
-###USERS#################################################################################
 @app.route('/api/v1.0/user/items', methods=['GET'])
 def get_users_items():
     items = []
-    uid = int(request.args.get('userid'))
+    uid = int(request.args.get('uid'))
 
     doc_ref = store.collection(u'items').where(u'userid', u'==', uid).order_by(
         u'date_time_added', direction=firestore.Query.DESCENDING)
@@ -271,6 +270,7 @@ def get_users_items():
     return jsonify({'items': items})
 
 
+###USERS#################################################################################
 @app.route('/api/v1.0/user/getinfo', methods=['GET'])
 def get_users_info():
     uid = request.args.get('uid')
