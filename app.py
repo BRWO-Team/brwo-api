@@ -20,7 +20,7 @@ from flask_swagger_ui import get_swaggerui_blueprint
 # TODO make swagger response for ​/api​/v1.0​/lazy​/most_recent​/items more clear
 
 
-DEV = True
+DEV = False
 PORT = 8080
 # PORT = 5000
 
