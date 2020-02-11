@@ -20,10 +20,10 @@ from flask_swagger_ui import get_swaggerui_blueprint
 # TODO make swagger response for ​/api​/v1.0​/lazy​/most_recent​/items more clear
 
 
-DEV = False
+DEV = True
 PORT = 8080
 # PORT = 5000
-
+URL_BASE = '/api/v1.0'
 
 # activate venv - brwo-venv\Scripts\activate
 
@@ -86,12 +86,12 @@ def site_map():
 ##GET####################################################################################
 
 ###ITEMS#################################################################################
-@app.route('/api/v1.0/count/items', methods=['GET'])
+@app.route(URL_BASE + '/items/count', methods=['GET'])
 def get_count_items():
     return str(len(list(store.collection('items').get())))
 
 
-@app.route('/api/v1.0/most_recent/items', methods=['GET'])
+@app.route(URL_BASE + '/items/most_recent', methods=['GET'])
 def get_most_recent_items():
     items = []
     n = int(request.args.get('n'))
@@ -110,7 +110,7 @@ def get_most_recent_items():
     return jsonify({'items': items})
 
 
-@app.route('/api/v1.0/lazy/most_recent/items', methods=['GET'])
+@app.route(URL_BASE + '/items/most_recent_lazy', methods=['GET'])
 def get_most_recent_items_lazy():
     n = int(request.args.get('n'))
     page = int(request.args.get('page'))
@@ -148,7 +148,7 @@ def get_most_recent_items_lazy():
         return jsonify({'items': items[-n:], 'no_more_results': False})
 
 
-@app.route('/api/v1.0/n/items', methods=['GET'])
+@app.route(URL_BASE + '/items/n', methods=['GET'])
 def get_n_items():
     items = []
     n = int(request.args.get('n'))
@@ -166,7 +166,7 @@ def get_n_items():
     return jsonify({'items': items})
 
 
-@app.route('/api/v1.0/fuzzy/items', methods=['GET'])
+@app.route(URL_BASE + '/items/fuzzy_search', methods=['GET'])
 def get_fuzzy_items():
     items = []
     query = request.args.get('query')
@@ -190,7 +190,7 @@ def get_fuzzy_items():
     return jsonify({'items': sorted_items})
 
 
-@app.route('/api/v1.0/distance/items', methods=['GET'])
+@app.route(URL_BASE + '/items/distance', methods=['GET'])
 def get_distance_items():
     items = []
     lat = float(request.args.get('lat'))
@@ -214,7 +214,7 @@ def get_distance_items():
     return jsonify({'items': items})
 
 
-@app.route('/api/v1.0/item', methods=['GET'])
+@app.route(URL_BASE + '/item', methods=['GET'])
 def get_item_by_id():
     item_id = request.args.get('item_id')
 
@@ -233,7 +233,7 @@ def get_item_by_id():
     return jsonify({'status': 'ok', 'item': item})
 
 
-@app.route('/api/v1.0/item/category', methods=['GET'])
+@app.route(URL_BASE + '/items/category', methods=['GET'])
 def get_item_by_category():
     items = []
     category = request.args.get('category')
@@ -252,7 +252,7 @@ def get_item_by_category():
     return jsonify({'status': 'ok', 'items': items})
 
 
-@app.route('/api/v1.0/user/items', methods=['GET'])
+@app.route(URL_BASE + '/items/user', methods=['GET'])
 def get_users_items():
     items = []
     uid = int(request.args.get('uid'))
@@ -271,7 +271,7 @@ def get_users_items():
 
 
 ###USERS#################################################################################
-@app.route('/api/v1.0/user/getinfo', methods=['GET'])
+@app.route(URL_BASE + '/users/getinfo', methods=['GET'])
 def get_users_info():
     uid = request.args.get('uid')
     doc_ref = store.collection(u'users').where(u'uid', u'==', uid)
@@ -288,7 +288,7 @@ def get_users_info():
 
 
 ###CATEGORIES############################################################################
-@app.route('/api/v1.0/items/categories', methods=['GET'])
+@app.route(URL_BASE + '/categories', methods=['GET'])
 def get_categories_items():
     categories = []
 
@@ -308,7 +308,7 @@ def get_categories_items():
 
 
 ###GEOCODE###############################################################################
-@app.route('/api/v1.0/geocode', methods=['GET'])
+@app.route(URL_BASE + '/geocode', methods=['GET'])
 def geocode():
     lat = request.args.get('lat')
     lon = request.args.get('lon')
@@ -326,7 +326,7 @@ def geocode():
 ##POST###################################################################################
 
 ###ITEMS#################################################################################
-@app.route('/api/v1.0/items', methods=['POST'])
+@app.route(URL_BASE + '/items', methods=['POST'])
 def new_item_post():
     try:
         os.mkdir('image')
@@ -379,7 +379,7 @@ def new_item_post():
     return jsonify(res)
 
 ###USERS#################################################################################
-@app.route('/api/v1.0/user/update', methods=['POST'])
+@app.route(URL_BASE + '/users/update', methods=['POST'])
 def user_update():
     try:
         data = request.get_json()
@@ -399,7 +399,7 @@ def user_update():
 
 ##DEPRECATED#############################################################################
 
-# @app.route('/api/v1.0/all/items', methods=['GET'])
+# @app.route(URL_BASE + '/all/items', methods=['GET'])
 # def get_all_items():
 #     items = []
 
@@ -415,7 +415,7 @@ def user_update():
 #     return jsonify({'items': items})
 
 
-# @app.route('/api/v1.0/items/submitimage', methods=['POST'])
+# @app.route(URL_BASE + '/items/submitimage', methods=['POST'])
 # def submit_image():
 #     image = request.files.get('image', '')
 
