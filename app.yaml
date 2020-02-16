@@ -1,9 +1,6 @@
 service: api
-runtime: python
+runtime: python37
 entrypoint: gunicorn -b :$PORT app:app
-
-runtime_config:
-  python_version: 3
 
 instance_class: B1
 basic_scaling:
