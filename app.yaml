@@ -1,2 +1,2 @@
-service: api
+service: api2
 runtime: python37
