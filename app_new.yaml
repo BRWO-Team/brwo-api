@@ -1,5 +1,0 @@
-service: api
-runtime: python37
-instance_class: B1
-basic_scaling:
-  max_instances: 1
