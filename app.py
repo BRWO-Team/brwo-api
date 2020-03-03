@@ -14,12 +14,6 @@ from fuzzywuzzy import fuzz
 from flask_swagger_ui import get_swaggerui_blueprint
 
 
-# TODO Fix issue with ​/api​/v1.0​/lazy​/most_recent​/items - should return
-# no_more_results as true if last page and not partial or no return
-# result set
-# TODO make swagger response for ​/api​/v1.0​/lazy​/most_recent​/items more clear
-
-
 DEV = False
 PORT = 8080
 # PORT = 5000
