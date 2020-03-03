@@ -6,7 +6,7 @@
   },
   "servers": [
     {
-      "url": "https://api-dot-pacific-plating-262123.appspot.com/api/v1.0"
+      "url": "https://brwo-api.appspot.com/api/v1.0"
     },
     {
       "url": "http://127.0.0.1:8080/api/v1.0"
